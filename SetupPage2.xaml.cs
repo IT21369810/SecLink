@@ -2,9 +2,6 @@
 using SecLinkApp;
 using System.Windows;
 using System;
-using System.IO;
-using System.Windows.Controls;
-using Microsoft.VisualBasic.FileIO;
 
 namespace SecureLink
 {
@@ -17,10 +14,8 @@ namespace SecureLink
             var defaultDirectory = DatabaseHelper.GetDefaultDirectory();
         }
 
-        private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
+        private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) { }
 
-        }
         private void NextButton_Click2(object sender, RoutedEventArgs e)
         {
             var folderPath = Browser_Box.Text.Trim();
@@ -33,8 +28,10 @@ namespace SecureLink
                 // Check if the username was successfully retrieved
                 if (!string.IsNullOrEmpty(username))
                 {
+
                     // Save the directory path with the username
                     DatabaseHelper.SaveUserSettings(username, folderPath);
+                    Console.WriteLine($"Using Default Directory: {folderPath}");
 
                     // Navigate to SetupPage3 or the main window
                     Setup3 setup3 = new Setup3();
@@ -54,33 +51,28 @@ namespace SecureLink
             }
         }
 
-
         private void Browse_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFolderDialog
+            var dialog = new System.Windows.Forms.FolderBrowserDialog
             {
-                DefaultDirectory = Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments),
-                ValidateNames = false,
+                SelectedPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments)
             };
 
             // Open the dialog and get the selected folder path
-            if (dialog.ShowDialog() == true)
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                Browser_Box.Text = dialog.FolderName;
+                Browser_Box.Text = dialog.SelectedPath;
             }
         }
+
         private void BackButton_Click2(object sender, RoutedEventArgs e)
         {
-            // Navigate back to SetupPage2.
-            SetupPage1 SetupPage1 = new SetupPage1();
-            SetupPage1.Left = this.Left; 
-            SetupPage1.Top = this.Top;
-            SetupPage1.Show();
+            // Navigate back to SetupPage1.
+            SetupPage1 setupPage1 = new SetupPage1();
+            setupPage1.Left = this.Left;
+            setupPage1.Top = this.Top;
+            setupPage1.Show();
             this.Close();
         }
-        
-
-
     }
-
 }

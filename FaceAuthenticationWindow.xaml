@@ -9,6 +9,6 @@
         </Grid.ColumnDefinitions>
         <Image Name="CameraFeed" HorizontalAlignment="Left" VerticalAlignment="Top" Width="450" Height="354" Margin="120,64,0,0" RenderTransformOrigin="0.511,0.538" Grid.ColumnSpan="2"/>
         <TextBlock Name="StatusTextBlock" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="475" Height="40" Margin="105,0,0,10" TextAlignment="Center" Foreground="Red" Grid.ColumnSpan="2"/>
-        <TextBlock TextWrapping="Wrap" Grid.ColumnSpan="2" Margin="10,25,246,375" FontSize="18"><Run FontWeight="Bold" Text="Face Recognition :"/></TextBlock>
+        <TextBlock TextWrapping="Wrap" Grid.ColumnSpan="2" Margin="10,25,246,300" FontSize="18"><Run FontWeight="Bold" Text="Face Recognition :"/></TextBlock>
     </Grid>
 </Window>

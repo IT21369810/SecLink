@@ -9,13 +9,13 @@
         mc:Ignorable="d"
         Title="Setup Page 2" Height="470" Width="710">
     <Grid>
-        <Rectangle Stroke="White" Margin="-2,-2,650,-1" Fill="#FF003366"/>
-        <Label Content="Select a folder to receive files : " Margin="86,57,329,338" FontSize="20"/>
+        <Rectangle Stroke="White" Margin="-2,-2,650,-1" Fill="#FF690D0D"/>
+        <Label Content="Select a folder to store files : " Margin="86,57,329,338" FontSize="20"/>
         <TextBlock x:Name="errorTextBlockBrowse" Text="You need to select a folder to continue !!" Foreground="Red" Margin="86,95,323,315" FontSize="15" Visibility="Collapsed"/>
         <TextBox x:Name="Browser_Box" TextWrapping="Wrap" Margin="86,112,246,288" VerticalContentAlignment="Center" TextChanged="TextBox_TextChanged" IsReadOnly="True" Cursor="Arrow"/>
-        <Button Content="Browse" Margin="518,112,52,288" Click="Browse_Click" Background="#FF003366" Foreground="White" Cursor="Hand"/>
+        <Button Content="Browse" Margin="518,112,52,288" Click="Browse_Click" Background="#FF690D0D" Foreground="White" Cursor="Hand"/>
         <CheckBox x:Name="CheckBox_shortcut" Content="   Create a Desktop Shortcut"  Margin="86,238,365,176"/>
-        <Button Content="Next" Click="NextButton_Click2" HorizontalAlignment="Left" Height="30" Margin="567,370,0,0" VerticalAlignment="Top" Width="91" Background="#FF003366" Foreground="White" BorderBrush="Black" Cursor="Hand"/>
-        <Button Content="Back" Click="BackButton_Click2" HorizontalAlignment="Left" Height="30" Margin="410,370,0,0" VerticalAlignment="Top" Width="91" BorderBrush="Black" Background="#FF003366" Foreground="White" Cursor="Hand"/>
+        <Button Content="Next" Click="NextButton_Click2" HorizontalAlignment="Left" Height="30" Margin="567,370,0,0" VerticalAlignment="Top" Width="91" Background="#FF690D0D" Foreground="White" BorderBrush="Black" Cursor="Hand"/>
+        <Button Content="Back" Click="BackButton_Click2" HorizontalAlignment="Left" Height="30" Margin="410,370,0,0" VerticalAlignment="Top" Width="91" BorderBrush="Black" Background="#FF690D0D" Foreground="White" Cursor="Hand"/>
     </Grid>
 </Window>

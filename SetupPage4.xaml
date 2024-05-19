@@ -10,11 +10,11 @@
         Title="SetupPage4" Height="470" Width="710">
     <Grid>
         <Label Content="Now that you've set up Windows Hello, let’s make sure it’s working. Click 'Test' to verify&#xD;&#xA; your setup. You must complete this step to ensure SecureLink can authenticate you &#xD;&#xA;securely." Margin="67,25,-2,328" FontSize="16" FontStyle="Italic"/>
-        <Rectangle Stroke="White" Margin="-2,-2,650,-1" Fill="#FF003366"/>
+        <Rectangle Stroke="White" Margin="-2,-2,650,-1" Fill="#FF690D0D"/>
         <Label Content="Test Windows Hello Authentication : " Margin="125,128,190,226" FontFamily="Franklin Gothic Medium" FontSize="24"/>
-        <Button Content="Test" Margin="520,130,50,270" Click="Test_Click" Background="#FF003366" Foreground="White" Cursor="Hand"/>
-        <Button x:Name="finish" Content="Finish" Click="Button_Click" HorizontalAlignment="Left" Height="30" Margin="567,370,0,0" VerticalAlignment="Top" Width="91" Background="#FF003366" Foreground="White" BorderBrush="Black" Visibility="Collapsed"/>
-        <Button Content="Back" Click="BackButton_Click4" HorizontalAlignment="Left" Height="30" Margin="410,370,0,0" VerticalAlignment="Top" Width="91" BorderBrush="Black" Background="#FF003366" Foreground="White" Cursor="Hand"/>
+        <Button Content="Test" Margin="520,130,50,270" Click="Test_Click" Background="#FF690D0D" Foreground="White" Cursor="Hand"/>
+        <Button x:Name="finish" Content="Finish" Click="Button_Click" HorizontalAlignment="Left" Height="30" Margin="567,370,0,0" VerticalAlignment="Top" Width="91" Background="#FF690D0D" Foreground="White" BorderBrush="Black" Visibility="Collapsed"/>
+        <Button Content="Back" Click="BackButton_Click4" HorizontalAlignment="Left" Height="30" Margin="410,370,0,0" VerticalAlignment="Top" Width="91" BorderBrush="Black" Background="#FF690D0D" Foreground="White" Cursor="Hand"/>
 
     </Grid>
 

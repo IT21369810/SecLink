@@ -12,7 +12,6 @@
   <ItemGroup>
     <None Remove="Background.mp4" />
     <None Remove="haarcascade_frontalface_default.xml" />
-    <None Remove="LOGO.png" />
     <None Remove="outline_file_download_white_48dp.png" />
     <None Remove="outline_file_upload_white_48dp.png" />
     <None Remove="outline_settings_white_48dp.png" />
@@ -26,17 +25,20 @@
     <Content Include="haarcascade_frontalface_default.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="LOGO.ico" />
+    <Content Include="LOGO.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.7.308.2" />
     <PackageReference Include="Emgu.CV" Version="4.9.0.5494" />
     <PackageReference Include="Emgu.CV.Bitmap" Version="4.9.0.5494" />
     <PackageReference Include="Emgu.CV.runtime.windows" Version="4.9.0.5494" />
     <PackageReference Include="Emgu.CV.UI" Version="4.9.0.5494" />
     <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
     <PackageReference Include="managedwifi" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.5" />
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.14" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
@@ -46,7 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="LOGO.png" />
     <Resource Include="outline_file_download_white_48dp.png" />
     <Resource Include="outline_file_upload_white_48dp.png" />
     <Resource Include="outline_settings_white_48dp.png" />

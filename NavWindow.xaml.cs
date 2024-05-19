@@ -21,14 +21,9 @@ namespace SecLinkApp
         public NavWindow()
         {
             InitializeComponent();
-            Main.Content = new NetworkPage();
+            Main.Content = new SendingPage();
         }
 
-        private void Button_Click_Network(object sender, RoutedEventArgs e)
-        {
-            // Redirect to NetworkPage
-            Main.Content = new NetworkPage();
-        }
         private void Button_Click_Send(object sender, RoutedEventArgs e)
         {
             // Redirect to SendingPage
@@ -42,14 +37,10 @@ namespace SecLinkApp
         private void Button_Click_Settings(object sender, RoutedEventArgs e)
         {
             // Redirect to SettingsPage
-            Main.Content = new SettingsPage();
+            //Main.Content = new SettingsPage();
         }
 
-        private void Network_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            // Redirect to NetworkPage
-            Main.Content = new NetworkPage();
-        }
+        
         private void Send_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             // Redirect to SendingPage
@@ -63,7 +54,7 @@ namespace SecLinkApp
         private void Settings_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             // Redirect to SettingsPage
-            Main.Content = new SettingsPage();
+            //Main.Content = new SettingsPage();
         }
 
     }

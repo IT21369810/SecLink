@@ -1,65 +1,142 @@
-﻿using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
+﻿using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Modes;
+using Org.BouncyCastle.Crypto.Parameters;
+using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 public class FileCryptoManager
 {
-    public const int KeySize = 32; // 256 bit key size,  publicly accessible
-    public const int IvSize = 12; // Recommended IV size (96 bit) for GCM mode, publicly accessible
-    public const int AuthTagSize = 16; // Size of the GCM authentication tag, publicly accessible. 128 bit
+    public const int KeySize = 32; // 256 bits
+    public const int IvSize = 16;  // 128 bits for AES-CTR
 
+    //AWS buket details
+    private static readonly string bucketName = "seclink";
+    private static readonly RegionEndpoint bucketRegion = RegionEndpoint.APSoutheast2;
+    //AWS credentials
+    private static readonly IAmazonS3 s3Client = new AmazonS3Client("AKIATPCAJ7BYKPWNRXUO", "PdOWA9fqYb2Mwqy2e/drb6w4KZ6+8HCsuT+yB1Jy", bucketRegion);
 
-    public static void EncryptFile(string inputFile, string outputFile, byte[] key)
+    //Encrypt the files
+    public static void EncryptFile(string inputFile, string outputFile, byte[] key, out byte[] iv)
     {
         if (key.Length != KeySize)
         {
             throw new ArgumentException($"Key must be {KeySize * 8} bits ({KeySize} bytes) for AES-256.");
         }
 
-        GcmBlockCipher cipher = new GcmBlockCipher(new AesEngine());
-        byte[] iv = new byte[IvSize];
+        var cipher = new BufferedBlockCipher(new SicBlockCipher(new AesEngine())); // BufferedBlockCipher for AES-CTR mode
+        iv = new byte[IvSize];
         using (var rng = new RNGCryptoServiceProvider())
         {
             rng.GetBytes(iv);
         }
 
-        cipher.Init(true, new AeadParameters(new KeyParameter(key), AuthTagSize * 8, iv));
+        cipher.Init(true, new ParametersWithIV(new KeyParameter(key), iv));
 
         byte[] fileContent = File.ReadAllBytes(inputFile);
         byte[] encryptedContent = new byte[cipher.GetOutputSize(fileContent.Length)];
         int len = cipher.ProcessBytes(fileContent, 0, fileContent.Length, encryptedContent, 0);
         len += cipher.DoFinal(encryptedContent, len);
 
-        // Combine IV + encrypted content for output
         byte[] combinedOutput = new byte[IvSize + len];
         Array.Copy(iv, 0, combinedOutput, 0, IvSize);
         Array.Copy(encryptedContent, 0, combinedOutput, IvSize, len);
 
         File.WriteAllBytes(outputFile, combinedOutput);
-        string ivBase64 = Convert.ToBase64String(iv);
-        Console.WriteLine($"iv:{ivBase64}");
+    }
+    //S3 upload
+    public static async Task UploadFileToS3Async(string localFilePath, string s3Key)
+    {
+        try
+        {
+            var putRequest = new PutObjectRequest
+            {
+                BucketName = bucketName,
+                Key = s3Key,
+                FilePath = localFilePath,
+                ContentType = "application/octet-stream"
+            };
+
+            var response = await s3Client.PutObjectAsync(putRequest);
+        }
+        catch (AmazonS3Exception e)
+        {
+            Console.WriteLine("Error encountered on server. Message:'{0}' when writing an object", e.Message);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Unknown encountered on server. Message:'{0}' when writing an object", e.Message);
+        }
+    }
+    //download from S3
+    public static async Task DownloadFileFromS3Async(string s3Key, string localFilePath)
+    {
+        try
+        {
+            var request = new GetObjectRequest
+            {
+                BucketName = bucketName,
+                Key = s3Key
+            };
+
+            using (var response = await s3Client.GetObjectAsync(request))
+            using (var responseStream = response.ResponseStream)
+            using (var fileStream = File.Create(localFilePath))
+            {
+                responseStream.CopyTo(fileStream);
+            }
+        }
+        catch (AmazonS3Exception e)
+        {
+            Console.WriteLine("Error encountered on server. Message:'{0}' when reading an object", e.Message);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Unknown encountered on server. Message:'{0}' when reading an object", e.Message);
+        }
+    }
+
+    public static async Task EncryptAndUploadFileAsync(string inputFile, string s3Key, byte[] key)
+    {
+        EncryptFile(inputFile, inputFile + ".enc", key, out byte[] iv);
+        await UploadFileToS3Async(inputFile + ".enc", s3Key);
+        File.Delete(inputFile + ".enc");
+    }
+
+    public static async Task DownloadAndDecryptFileAsync(string s3Key, string outputFile, byte[] key)
+    {
+        string encryptedFilePath = outputFile + ".enc";
+        await DownloadFileFromS3Async(s3Key, encryptedFilePath);
+
+        byte[] combinedInput = File.ReadAllBytes(encryptedFilePath);
+        byte[] iv = new byte[IvSize];
+        byte[] encryptedContent = new byte[combinedInput.Length - IvSize];
+
+        Array.Copy(combinedInput, 0, iv, 0, IvSize);
+        Array.Copy(combinedInput, IvSize, encryptedContent, 0, encryptedContent.Length);
+
+        DecryptFileDirect(encryptedContent, outputFile, key, iv);
+        File.Delete(encryptedFilePath);
     }
 
     public static void DecryptFileDirect(byte[] encryptedContent, string outputFile, byte[] key, byte[] iv)
     {
-        //decrypt the files
         if (key.Length != KeySize)
         {
-            //key error
-            throw new ArgumentException($"Key must be {KeySize * 8} bits ({KeySize} bytes) for 256.");
+            throw new ArgumentException($"Key must be {KeySize * 8} bits ({KeySize} bytes) for AES-256.");
         }
         if (iv.Length != IvSize)
         {
-            //Iv error
             throw new ArgumentException($"IV must be {IvSize} bytes.");
         }
-        string ivBase64 = Convert.ToBase64String(iv);
-        Console.WriteLine($"iv:{ivBase64}");
-        GcmBlockCipher cipher = new GcmBlockCipher(new AesEngine());
-        cipher.Init(false, new AeadParameters(new KeyParameter(key), AuthTagSize * 8, iv));
+
+        var cipher = new BufferedBlockCipher(new SicBlockCipher(new AesEngine())); // BufferedBlockCipher for AES-CTR mode
+        cipher.Init(false, new ParametersWithIV(new KeyParameter(key), iv));
 
         byte[] decryptedContent = new byte[cipher.GetOutputSize(encryptedContent.Length)];
         int len = cipher.ProcessBytes(encryptedContent, 0, encryptedContent.Length, decryptedContent, 0);
@@ -67,5 +144,4 @@ public class FileCryptoManager
 
         File.WriteAllBytes(outputFile, decryptedContent);
     }
-
 }

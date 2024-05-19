@@ -37,7 +37,7 @@ namespace SecLinkApp
         {
             try
             {
-                _capture = new VideoCapture();
+                _capture = new VideoCapture(0, VideoCapture.API.DShow); // Use DirectShow
                 if (!_capture.IsOpened)
                 {
                     throw new Exception("Camera could not be opened.");
@@ -99,7 +99,6 @@ namespace SecLinkApp
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Runtime Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

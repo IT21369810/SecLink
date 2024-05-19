@@ -38,7 +38,7 @@ namespace SecLinkApp
         {
             try
             {
-                _capture = new VideoCapture();
+                _capture = new VideoCapture(0); // Using default API
                 if (!_capture.IsOpened)
                 {
                     throw new Exception("Camera could not be opened.");
@@ -61,6 +61,7 @@ namespace SecLinkApp
                 MessageBox.Show(ex.Message, "Initialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private void StartCountdownTimer()
         {
@@ -91,16 +92,17 @@ namespace SecLinkApp
         {
             try
             {
-                if (_capture == null)
+                if (_capture == null || !_capture.IsOpened)
                 {
-                    throw new Exception("Capture device is not initialized.");
+                    throw new Exception("Capture device is not initialized or opened.");
                 }
 
                 using (var frame = _capture.QueryFrame())
                 {
                     if (frame == null)
                     {
-                        throw new Exception("No frame captured from camera.");
+                        StatusTextBlock.Text = "No frame captured from the camera.";
+                        return;
                     }
 
                     var image = frame.ToImage<Bgr, byte>();
@@ -129,7 +131,7 @@ namespace SecLinkApp
                             _capture.Dispose();
                             MessageBox.Show("Authentication successful!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                             this.DialogResult = true;
-                            return; // Ensure the method exits immediately after setting DialogResult
+                            return;
                         }
                         else
                         {
@@ -140,9 +142,10 @@ namespace SecLinkApp
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Runtime Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                StatusTextBlock.Text = $"Error: {ex.Message}";
             }
         }
+
 
         //load model
         private void LoadTrainingData()

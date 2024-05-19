@@ -31,23 +31,16 @@ namespace SecLinkApp
 
                 if (result.Status == KeyCredentialStatus.Success)
                 {
-                    if (result.Status == KeyCredentialStatus.Success)
-                    {
-                        MessageBox.Show("Setup complete! You're now ready to securely share files within your network. Click 'Finish' to start using SecureLink!");
-                        finish.Visibility = Visibility.Visible;
+                    MessageBox.Show("Setup complete! You're now ready to securely Store files!!");
+                    finish.Visibility = Visibility.Visible;
 
-                        byte[] masterKey = GenerateSecureMasterKey();
-                        string masterKeyBase64 = Convert.ToBase64String(masterKey);
+                    byte[] masterKey = GenerateSecureMasterKey();
+                    string masterKeyBase64 = Convert.ToBase64String(masterKey);
 
-                        // Store the key securely
-                        SecureStoreMasterKey(masterKey);
-                                                
-                        EphemeralKeyGenerator keyGenerator = new EphemeralKeyGenerator(masterKey);
-                        byte[] ephemeralKey = keyGenerator.GenerateKey(DateTimeOffset.UtcNow);
-                        // Use ephemeralKey for encryption as required
-                        Console.WriteLine(masterKeyBase64);
-                    }
+                    // Store the key securely
+                    SecureStoreMasterKey(masterKey);
 
+                    Console.WriteLine(masterKeyBase64);
                 }
                 else
                 {
@@ -59,57 +52,93 @@ namespace SecLinkApp
                 MessageBox.Show("Windows Hello is not supported on this device.");
             }
 
-            // Re-enable the Test button after the message box is acknowledged
             testButton.IsEnabled = true;
         }
+
         private byte[] GenerateSecureMasterKey()
         {
             using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
             {
-                byte[] randomBytes = new byte[32]; // For GCM, we need a 256-bit key
-                rng.GetBytes(randomBytes); // Fills the array with cryptographically secure random bytes
+                byte[] randomBytes = new byte[32]; //  256-bit key
+                rng.GetBytes(randomBytes); //IV
                 return randomBytes;
             }
         }
 
         private void SecureStoreMasterKey(byte[] masterKey)
         {
-            // Convert the key to a string (Base64) to store it
-            string masterKeyString = Convert.ToBase64String(masterKey);
+            try
+            {
+                string masterKeyString = Convert.ToBase64String(masterKey);
 
-            // Use the ProtectedData class to encrypt and store the master key securely
-            byte[] masterKeyEncrypted = ProtectedData.Protect(
-                Encoding.UTF8.GetBytes(masterKeyString),
-                null, // Optional entropy
-                DataProtectionScope.CurrentUser // Encrypt the data using the current user scope
-            );
+                byte[] masterKeyEncrypted = ProtectedData.Protect(
+                    Encoding.UTF8.GetBytes(masterKeyString),
+                    null,
+                    DataProtectionScope.CurrentUser
+                );
 
-            // Store the encrypted key somewhere safe, e.g., a file or registry
-            // This example uses a file in the user's AppData folder
-            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "masterKey.dat");
-            File.WriteAllBytes(filePath, masterKeyEncrypted);
+                string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SecLinkApp", "Keys");
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                string filePath = Path.Combine(folderPath, "masterKey.key");
+                File.WriteAllBytes(filePath, masterKeyEncrypted);
+                Console.WriteLine($"Master key securely stored at: {filePath}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to store the master key: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private byte[] RetrieveSecureMasterKey()
+        {
+            try
+            {
+                string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SecLinkApp", "Keys", "masterKey.key");
+
+                if (!File.Exists(filePath))
+                {
+                    throw new FileNotFoundException("Master key file not found.");
+                }
+
+                byte[] encryptedMasterKey = File.ReadAllBytes(filePath);
+                byte[] decryptedMasterKeyBytes = ProtectedData.Unprotect(
+                    encryptedMasterKey,
+                    null,
+                    DataProtectionScope.CurrentUser
+                );
+                string decryptedMasterKeyString = Encoding.UTF8.GetString(decryptedMasterKeyBytes);
+                byte[] masterKey = Convert.FromBase64String(decryptedMasterKeyString);
+                return masterKey;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to retrieve the master key: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            // Set the setup completed flag to true
             SecLinkApp.Properties.Settings.Default.SetupCompleted = true;
             SecLinkApp.Properties.Settings.Default.Save();
-            // Open the main user interface window and close the setup window
+
             NavWindow mainWindow = new NavWindow();
-            mainWindow.Left = this.Left; // 'this' refers to the current instance of the window
+            mainWindow.Left = this.Left;
             mainWindow.Top = this.Top;
             mainWindow.Show();
             this.Close();
         }
 
-
         private void BackButton_Click4(object sender, RoutedEventArgs e)
         {
-            SetupPage3 setupPage3 = new SetupPage3();
-            setupPage3.Left = this.Left; // 'this' refers to the current instance of the window
-            setupPage3.Top = this.Top;
-            setupPage3.Show();
+            Setup3 setup3 = new Setup3();
+            setup3.Left = this.Left;
+            setup3.Top = this.Top;
+            setup3.Show();
             this.Close();
         }
     }
